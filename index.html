@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JELAJAH ANGKASA - Gim Matematika Edukatif</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Orbitron & Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            background-color: #060919;
+            color: #ffffff;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .custom-space-bg {
+            background-image: linear-gradient(180deg, rgba(5, 7, 20, 0.78) 0%, rgba(10, 15, 35, 0.90) 100%), url('https://i.ibb.co/DPZjR6tc/Halaman-misi-1-jelajah-angkasa.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        #app-viewport {
+            position: relative;
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            background: radial-gradient(circle at center, #111836 0%, #050714 100%);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.25);
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        .btn-neon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.45));
+            border: 2px solid #06b6d4;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4), inset 0 0 10px rgba(6, 182, 212, 0.2);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+        .btn-neon:hover, .btn-neon:active {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.8), inset 0 0 15px rgba(6, 182, 212, 0.5);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 182, 212, 0.75));
+        }
+        @keyframes floatRocket {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+        }
+        .animate-rocket {
+            animation: floatRocket 3s ease-in-out infinite;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 4px; }
+        
+        .draggable-item {
+            cursor: grab;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .draggable-item:active, .draggable-item.selected-tap {
+            cursor: grabbing;
+            transform: scale(1.1);
+            outline: 2px solid #f59e0b;
+        }
+        .drop-target {
+            border: 3px dashed #06b6d4;
+            transition: all 0.3s ease;
+        }
+        .drop-target.hovered {
+            background-color: rgba(6, 182, 212, 0.3);
+            border-color: #10b981;
+        }
+        .match-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .match-card.selected {
+            border-color: #f59e0b;
+            background-color: rgba(245, 158, 11, 0.35);
+            transform: scale(1.04);
+        }
+        .match-card.matched {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.3);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Container Utama Aplikasi -->
+    <div id="app-viewport" class="relative flex flex-col justify-between p-2 sm:p-4 overflow-hidden">
+        
+        <!-- SCREEN 1: LOADING -->
+        <div id="screen-loading" class="custom-space-bg absolute inset-0 z-50 flex flex-col items-center justify-center p-6">
+            <div id="starfield-bg" class="absolute inset-0 opacity-40 pointer-events-none"></div>
+            
+            <div class="relative z-10 text-center flex flex-col items-center">
+                <div class="relative mb-6 animate-rocket flex justify-center items-center">
+                    <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-cyan-500/20 blur-xl absolute inset-0"></div>
+                    <img src="https://i.ibb.co/Jj5hdyj6/ikon-jelajah-angkasa.png" onerror="this.src='https://placehold.co/200x200/06b6d4/ffffff?text=🚀'" alt="Pesawat Jelajah" class="w-24 sm:w-32 object-contain drop-shadow-[0_0_25px_rgba(6,182,212,0.8)]">
+                </div>
+                
+                <h1 class="text-3xl sm:text-5xl font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-200 to-indigo-300 mb-2 tracking-wider drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+                    JELAJAH ANGKASA
+                </h1>
+                <p class="text-sm sm:text-base text-cyan-200/90 mb-8 font-medium drop-shadow">Petualangan Matematika Antariksa Operasi Bilangan Bulat</p>
+
+                <div class="w-64 sm:w-96 h-8 bg-slate-950/80 border-2 border-cyan-400/80 rounded-full p-1 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+                    <div id="loading-bar" class="h-full bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 rounded-full w-0 transition-all duration-300 relative">
+                        <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
+                    </div>
+                    <span id="loading-text" class="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-bold font-orbitron text-white drop-shadow">
+                        Menyiapkan Pesawat... 0%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: MAIN MENU -->
+        <div id="screen-menu" class="custom-space-bg hidden absolute inset-0 z-40 flex flex-col justify-between p-3 sm:p-5">
+            <div class="w-full my-auto grid grid-cols-12 gap-6 items-center max-w-5xl mx-auto">
+                <div class="col-span-12 md:col-span-5 flex flex-col items-center justify-center text-center p-4 bg-slate-950/40 backdrop-blur-md rounded-3xl border border-cyan-500/30 shadow-2xl">
+                    <div class="relative animate-rocket mb-4">
+                        <img src="https://i.ibb.co/Jj5hdyj6/ikon-jelajah-angkasa.png" onerror="this.src='https://placehold.co/200x200/06b6d4/ffffff?text=🚀'" alt="Pesawat Utama" class="w-28 sm:w-40 object-contain filter drop-shadow-[0_0_20px_rgba(6,182,212,0.8)]">
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-200 to-blue-300 tracking-wider mb-2 drop-shadow-md">
+                        JELAJAH ANGKASA
+                    </h1>
+                    <span class="px-4 py-1 rounded-full bg-cyan-950/90 border border-cyan-400/50 text-cyan-300 text-xs sm:text-sm font-semibold tracking-wide shadow-lg">
+                        Edisi Operasi Bilangan Bulat
+                    </span>
+                </div>
+
+                <div class="col-span-12 md:col-span-7 flex flex-col gap-3 sm:gap-4 max-w-md mx-auto w-full">
+                    <button id="btn-objectives" class="btn-neon w-full py-3 sm:py-3.5 px-6 rounded-2xl flex items-center justify-between text-sm sm:text-base font-bold font-orbitron text-white">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-bullseye text-cyan-400"></i> TUJUAN PEMBELAJARAN</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-70"></i>
+                    </button>
+                    
+                    <button id="btn-instructions" class="btn-neon w-full py-3 sm:py-3.5 px-6 rounded-2xl flex items-center justify-between text-sm sm:text-base font-bold font-orbitron text-white">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-book-open text-teal-400"></i> PETUNJUK GIM</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-70"></i>
+                    </button>
+                    
+                    <button id="btn-register" class="btn-neon w-full py-3.5 sm:py-4 px-6 rounded-2xl flex items-center justify-between text-base sm:text-lg font-bold font-orbitron text-white bg-gradient-to-r from-cyan-500 to-blue-600 border-cyan-300 shadow-lg">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-play text-yellow-300"></i> REGISTRASI & MAIN</span>
+                        <i class="fa-solid fa-circle-play text-yellow-300"></i>
+                    </button>
+                    
+                    <button id="btn-leaderboard" class="btn-neon w-full py-3 sm:py-3.5 px-6 rounded-2xl flex items-center justify-between text-sm sm:text-base font-bold font-orbitron text-white">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-trophy text-amber-400"></i> PAPAN SKOR</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-70"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer Beranda -->
+            <footer class="w-full text-center py-1 mt-auto">
+                <p class="text-[10px] sm:text-xs font-orbitron text-cyan-300/80 tracking-wider drop-shadow">
+                    Pengembang Gim: <span class="text-cyan-200 font-bold">Arkananta.id-SDN Nongkosawit 01</span>
+                </p>
+            </footer>
+        </div>
+
+        <!-- SCREEN 3: REGISTRATION SCREEN -->
+        <div id="screen-register" class="custom-space-bg hidden absolute inset-0 z-40 flex flex-col justify-between p-3 sm:p-5 overflow-y-auto">
+            <div class="max-w-xl mx-auto w-full my-auto bg-slate-900/90 border-2 border-cyan-500/50 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-md">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                    <h2 class="text-xl sm:text-2xl font-bold font-orbitron text-cyan-300">REGISTRASI PEMAIN</h2>
+                    <button id="btn-back-to-menu" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <p class="text-xs sm:text-sm text-cyan-200/80 mb-3 font-semibold">Pilih Mode Permainan:</p>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div id="mode-solo-card" class="p-3.5 rounded-2xl border-2 border-cyan-400 bg-cyan-950/70 backdrop-blur-md flex flex-col items-center justify-center cursor-pointer transition-all shadow-lg">
+                        <i class="fa-solid fa-user text-2xl text-cyan-400 mb-1"></i>
+                        <span class="font-orbitron font-bold text-xs sm:text-sm text-white">SOLO</span>
+                        <span class="text-[10px] text-cyan-300/80">1 Pemain</span>
+                    </div>
+                    <div id="mode-duel-card" class="p-3.5 rounded-2xl border-2 border-slate-700 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center cursor-pointer transition-all opacity-80 hover:opacity-100 shadow-lg">
+                        <i class="fa-solid fa-user-group text-2xl text-rose-400 mb-1"></i>
+                        <span class="font-orbitron font-bold text-xs sm:text-sm text-white">DUEL</span>
+                        <span class="text-[10px] text-rose-300/80">2 Pemain</span>
+                    </div>
+                </div>
+
+                <div id="container-solo-input" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-orbitron text-cyan-300 mb-1">Nama Astronot:</label>
+                        <input type="text" id="input-p1-name" placeholder="Masukkan nama kamu..." class="w-full bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                    </div>
+                    <button id="btn-start-solo" class="btn-neon w-full py-3 rounded-xl font-orbitron font-bold text-white text-sm shadow-lg">
+                        MULAI JELAJAH <i class="fa-solid fa-rocket ml-1"></i>
+                    </button>
+                </div>
+
+                <div id="container-duel-input" class="space-y-3 hidden">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-orbitron text-cyan-300 mb-1">Pemain 1:</label>
+                            <input type="text" id="input-duel-p1" placeholder="Pemain 1" class="w-full bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-orbitron text-rose-300 mb-1">Pemain 2:</label>
+                            <input type="text" id="input-duel-p2" placeholder="Pemain 2" class="w-full bg-slate-950 border border-rose-500/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-400">
+                        </div>
+                    </div>
+                    <button id="btn-start-duel" class="btn-neon w-full py-3 rounded-xl font-orbitron font-bold text-white text-sm shadow-lg">
+                        MULAI DUEL ANGKASA <i class="fa-solid fa-fire ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: GAMEPLAY SCREEN -->
+        <div id="screen-game" class="custom-space-bg hidden absolute inset-0 z-30 flex flex-col p-2 sm:p-4">
+            <!-- HUD Solo Mode -->
+            <div id="game-hud" class="hidden flex flex-col h-full w-full">
+                <div class="flex justify-between items-center bg-slate-900/80 backdrop-blur-md border border-cyan-500/40 rounded-xl p-2 px-4 mb-2 font-orbitron text-xs sm:text-sm">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-user-astronaut text-cyan-400"></i>
+                        <span id="solo-player-display" class="text-white font-bold">Astronot</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-amber-400 font-bold">SKOR: <span id="solo-score-display">0</span></span>
+                        <span class="text-cyan-300 font-bold">MISI: <span id="solo-mission-display">1</span></span>
+                    </div>
+                    <div class="w-28 sm:w-40 h-4 bg-slate-950 rounded-full border border-cyan-400/60 overflow-hidden relative">
+                        <div id="solo-fuel-bar" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-1/2"></div>
+                    </div>
+                </div>
+
+                <!-- Misi 1 Solo -->
+                <div id="solo-m1-view" class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto p-1">
+                    <div class="bg-slate-950/60 backdrop-blur-md border border-cyan-500/40 rounded-2xl p-3 flex flex-col justify-between shadow-xl">
+                        <h3 class="font-orbitron font-bold text-xs text-cyan-300 mb-2"><i class="fa-solid fa-gas-pump mr-1"></i> BAGIAN 1: PENGISIAN BAHAN BAKAR</h3>
+                        <p class="text-[11px] text-slate-300 mb-2">Seret atau ketuk tabung jawaban ke kotak operasi hitung!</p>
+                        <div id="solo-drag-targets" class="grid grid-cols-3 gap-2 mb-3"></div>
+                        <div id="solo-drag-canisters" class="flex flex-wrap justify-center gap-2"></div>
+                    </div>
+                    <div class="bg-slate-950/60 backdrop-blur-md border border-cyan-500/40 rounded-2xl p-3 flex flex-col justify-between shadow-xl">
+                        <h3 class="font-orbitron font-bold text-xs text-teal-300 mb-2"><i class="fa-solid fa-clone mr-1"></i> BAGIAN 2: PENJODOHAN KARTU SETARA</h3>
+                        <p class="text-[11px] text-slate-300 mb-2">Jodohkan operasi hitung dengan nilai hasilnya yang sesuai.</p>
+                        <div id="solo-match-grid" class="grid grid-cols-2 gap-2 my-auto"></div>
+                    </div>
+                </div>
+
+                <!-- Arcade Canvas Solo -->
+                <div id="solo-arcade-view" class="hidden flex-1 flex flex-col relative overflow-hidden rounded-2xl border border-cyan-500/40">
+                    <div class="absolute top-2 left-1/2 -translate-x-1/2 z-20 bg-slate-900/90 border border-cyan-400 rounded-xl px-4 py-1.5 text-center shadow-lg max-w-[90%]">
+                        <span id="solo-question-text" class="font-orbitron font-bold text-xs sm:text-sm text-cyan-300">Soal...</span>
+                    </div>
+                    <canvas id="canvas-solo" width="600" height="350" class="w-full h-full object-cover"></canvas>
+                    
+                    <div class="absolute bottom-3 left-3 right-3 z-20 flex justify-between items-center pointer-events-auto">
+                        <div class="flex gap-2">
+                            <button id="btn-touch-left" class="w-12 h-12 rounded-full bg-slate-900/80 border border-cyan-400 text-white font-bold text-xl active:bg-cyan-600 flex items-center justify-center">◀</button>
+                            <button id="btn-touch-right" class="w-12 h-12 rounded-full bg-slate-900/80 border border-cyan-400 text-white font-bold text-xl active:bg-cyan-600 flex items-center justify-center">▶</button>
+                        </div>
+                        <button id="btn-touch-fire" class="w-14 h-14 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 border-2 border-cyan-300 text-white font-bold text-xl active:scale-95 shadow-lg flex items-center justify-center"><i class="fa-solid fa-crosshairs"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duel View Container -->
+            <div id="duel-split-container" class="hidden flex-1 grid grid-cols-2 gap-2 h-full w-full">
+                <!-- P1 Container -->
+                <div class="bg-slate-900/80 border border-cyan-500/40 rounded-2xl p-2 flex flex-col justify-between overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-orbitron border-b border-slate-700 pb-1 mb-1">
+                        <span id="p1-duel-name" class="text-cyan-300 font-bold">P1</span>
+                        <span id="p1-duel-mission-tag" class="text-xs text-cyan-200">M1</span>
+                        <span class="text-amber-400 font-bold">SKOR: <span id="p1-score-display">0</span></span>
+                    </div>
+                    <div id="p1-m1-view" class="flex-1 flex flex-col justify-around">
+                        <div id="p1-m1-targets" class="grid grid-cols-3 gap-1"></div>
+                        <div id="p1-m1-canisters" class="flex flex-wrap justify-center gap-1"></div>
+                        <div id="p1-match-grid" class="grid grid-cols-2 gap-1"></div>
+                    </div>
+                    <div id="p1-arcade-view" class="hidden flex-1 flex flex-col relative overflow-hidden rounded-xl border border-cyan-500/30">
+                        <div class="absolute top-1 left-1/2 -translate-x-1/2 z-20 bg-slate-900/90 px-2 py-0.5 rounded text-[10px] font-orbitron text-cyan-300 text-center max-w-[95%]">
+                            <span id="p1-question-text">Soal P1...</span>
+                        </div>
+                        <canvas id="canvas-p1" width="300" height="300" class="w-full h-full object-cover"></canvas>
+                    </div>
+                </div>
+
+                <!-- P2 Container -->
+                <div class="bg-slate-900/80 border border-rose-500/40 rounded-2xl p-2 flex flex-col justify-between overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-orbitron border-b border-slate-700 pb-1 mb-1">
+                        <span id="p2-duel-name" class="text-rose-300 font-bold">P2</span>
+                        <span id="p2-duel-mission-tag" class="text-xs text-rose-200">M1</span>
+                        <span class="text-amber-400 font-bold">SKOR: <span id="p2-score-display">0</span></span>
+                    </div>
+                    <div id="p2-m1-view" class="flex-1 flex flex-col justify-around">
+                        <div id="p2-m1-targets" class="grid grid-cols-3 gap-1"></div>
+                        <div id="p2-m1-canisters" class="flex flex-wrap justify-center gap-1"></div>
+                        <div id="p2-match-grid" class="grid grid-cols-2 gap-1"></div>
+                    </div>
+                    <div id="p2-arcade-view" class="hidden flex-1 flex flex-col relative overflow-hidden rounded-xl border border-rose-500/30">
+                        <div class="absolute top-1 left-1/2 -translate-x-1/2 z-20 bg-slate-900/90 px-2 py-0.5 rounded text-[10px] font-orbitron text-rose-300 text-center max-w-[95%]">
+                            <span id="p2-question-text">Soal P2...</span>
+                        </div>
+                        <canvas id="canvas-p2" width="300" height="300" class="w-full h-full object-cover"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: TUJUAN PEMBELAJARAN -->
+        <div id="modal-objectives" class="hidden absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <div class="bg-slate-900/95 border-2 border-cyan-500/60 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col justify-between shadow-2xl">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                        <h2 class="text-xl sm:text-2xl font-bold font-orbitron text-cyan-300 flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye text-cyan-400"></i> TUJUAN PEMBELAJARAN
+                        </h2>
+                        <button class="btn-close-modal text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <ul class="space-y-3 text-slate-200 text-xs sm:text-sm">
+                        <li class="flex items-start gap-3 bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                            <i class="fa-solid fa-check-circle text-emerald-400 mt-1"></i>
+                            <span>Memahami dan mengoperasikan <strong>penjumlahan & pengurangan bilangan bulat</strong> positif dan negatif.</span>
+                        </li>
+                        <li class="flex items-start gap-3 bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                            <i class="fa-solid fa-check-circle text-emerald-400 mt-1"></i>
+                            <span>Menyelesaikan <strong>10 soal operasi hitung perkalian, pembagian, dan campuran</strong> secara cepat dan akurat.</span>
+                        </li>
+                        <li class="flex items-start gap-3 bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                            <i class="fa-solid fa-check-circle text-emerald-400 mt-1"></i>
+                            <span>Mengaplikasikan konsep bilangan bulat dalam <strong>5 soal cerita antariksa</strong> kehidupan nyata (suhu, kedalaman, skor).</span>
+                        </li>
+                    </ul>
+                </div>
+                <button class="btn-close-modal mt-4 btn-neon w-full py-2.5 rounded-xl font-orbitron font-bold text-white text-sm">MENGERTI</button>
+            </div>
+        </div>
+
+        <!-- MODAL: PETUNJUK GIM -->
+        <div id="modal-instructions" class="hidden absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <div class="bg-slate-900/95 border-2 border-cyan-500/60 rounded-3xl p-6 max-w-3xl w-full max-h-[85vh] flex flex-col justify-between shadow-2xl overflow-y-auto">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                        <h2 class="text-xl sm:text-2xl font-bold font-orbitron text-teal-300 flex items-center gap-2">
+                            <i class="fa-solid fa-book-open text-teal-400"></i> PETUNJUK PERMAINAN
+                        </h2>
+                        <button class="btn-close-modal text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+                        <div class="bg-slate-800/80 p-4 rounded-2xl border border-cyan-500/40">
+                            <h3 class="font-orbitron font-bold text-cyan-400 mb-2">MISI 1: Persiapan</h3>
+                            <p class="text-slate-300">Seret/Ketuk tabung bahan bakar ke kotak berangka & jodohkan pasangan kartu setara untuk mengisi bahan bakar.</p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-2xl border border-teal-500/40">
+                            <h3 class="font-orbitron font-bold text-teal-400 mb-2">MISI 2: Math Gunner (10 Soal)</h3>
+                            <p class="text-slate-300">Selesaikan <strong>10 soal operasi hitung</strong>! Tembak laser ke asteroid yang membawa jawaban tepat.</p>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-2xl border border-rose-500/40">
+                            <h3 class="font-orbitron font-bold text-rose-400 mb-2">MISI 3: Survival (5 Soal)</h3>
+                            <p class="text-slate-300">Selesaikan <strong>5 soal cerita antariksa</strong>. Hancurkan asteroid berangka benar sebelum roket kehabisan daya!</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-close-modal mt-4 btn-neon w-full py-2.5 rounded-xl font-orbitron font-bold text-white text-sm">SIAP PETUALANG!</button>
+            </div>
+        </div>
+
+        <!-- MODAL: LEADERBOARD -->
+        <div id="modal-leaderboard" class="hidden absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <div class="custom-space-bg bg-slate-900/90 border-2 border-amber-500/60 rounded-3xl p-6 max-w-xl w-full max-h-[85vh] flex flex-col justify-between shadow-2xl backdrop-blur-md">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-700/80 pb-3 mb-4">
+                        <h2 class="text-xl sm:text-2xl font-bold font-orbitron text-amber-400 flex items-center gap-2 drop-shadow-md">
+                            <i class="fa-solid fa-trophy text-amber-400"></i> PAPAN SKOR TERTINGGI
+                        </h2>
+                        <button class="btn-close-modal text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="leaderboard-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
+                </div>
+                <button class="btn-close-modal mt-4 btn-neon w-full py-2.5 rounded-xl font-orbitron font-bold text-white text-sm">TUTUP</button>
+            </div>
+        </div>
+
+        <!-- MODAL: HASIL & EVALUASI UMPAN BALIK -->
+        <div id="modal-result" class="hidden absolute inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+            <div class="bg-slate-900 border-2 border-cyan-400 rounded-3xl p-4 sm:p-6 max-w-lg w-full text-center shadow-2xl animate-rocket my-auto max-h-[92vh] flex flex-col justify-between overflow-y-auto">
+                <div>
+                    <div id="result-icon-box" class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center text-2xl sm:text-3xl text-cyan-300 mb-2">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h2 id="result-title" class="text-xl sm:text-2xl font-black font-orbitron text-white mb-0.5">MISI SELESAI!</h2>
+                    <p id="result-subtitle" class="text-xs text-cyan-200/80 mb-3">Laporan Analisis Performa & Evaluasi Pembelajaran</p>
+
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1.5 mb-3 text-xs font-orbitron text-left">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-1">
+                            <span class="text-slate-400">PEMAIN:</span>
+                            <span id="result-player-name" class="text-cyan-300 font-bold">Astronot</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-1">
+                            <span class="text-slate-400">SKOR AKHIR:</span>
+                            <span id="result-final-score" class="text-amber-400 font-bold text-sm">0</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-1">
+                            <span class="text-slate-400">AKURASI JAWABAN:</span>
+                            <span id="result-accuracy" class="text-emerald-400 font-bold text-xs">100% (0/0)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">STATUS PENDARATAN:</span>
+                            <span id="result-status-badge" class="text-emerald-400 font-bold">BERHASIL LANDAS</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-cyan-500/40 text-left mb-3 space-y-2.5">
+                        <div>
+                            <h4 class="font-orbitron font-bold text-xs text-cyan-300 flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-brain text-amber-400"></i> UMPAN BALIK EVALUASI:
+                            </h4>
+                            <p id="result-feedback-text" class="text-xs text-slate-200 leading-relaxed font-sans bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                                Evaluasi performa matematika akan muncul di sini.
+                            </p>
+                        </div>
+                        
+                        <div class="pt-1 border-t border-slate-800">
+                            <h5 class="font-orbitron font-bold text-[11px] text-teal-300 flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-lightbulb text-yellow-300"></i> SARAN REKOMENDASI BELAJAR:
+                            </h5>
+                            <p id="result-advice-text" class="text-xs text-slate-300 leading-relaxed font-sans bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                                Saran dan tips pengerjaan soal akan disediakan di sini.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-result-restart" class="btn-neon w-full py-2.5 sm:py-3 rounded-2xl font-orbitron font-bold text-white text-sm shadow-lg">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> MAIN LAGI
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        class AudioSynth {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+                }
+            }
+            playShoot() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                const now = this.ctx.currentTime;
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.12);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+            playExplosion() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                const now = this.ctx.currentTime;
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+            playCorrect() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99].forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.15, now + i * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.01, now + i * 0.08 + 0.15);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.15);
+                });
+            }
+            playWrong() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                const now = this.ctx.currentTime;
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.setValueAtTime(110, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        const sound = new AudioSynth();
+
+        // Assets Preloading
+        const shipImgMenu = new Image();
+        let shipImgMenuLoaded = false;
+        shipImgMenu.onload = () => { shipImgMenuLoaded = true; };
+        shipImgMenu.src = "https://i.ibb.co/Jj5hdyj6/ikon-jelajah-angkasa.png";
+
+        const shipImgMisi23 = new Image();
+        let shipImgMisi23Loaded = false;
+        shipImgMisi23.onload = () => { shipImgMisi23Loaded = true; };
+        shipImgMisi23.src = "https://i.ibb.co/FkFRQd2f/pesawat-jelajah-angkasa.png";
+
+        const bgImgMisi23 = new Image();
+        let bgImgMisi23Loaded = false;
+        bgImgMisi23.onload = () => { bgImgMisi23Loaded = true; };
+        bgImgMisi23.src = "https://i.ibb.co/v4HZ6Sj8/Halaman-misi-2-dan-3-jelajah-angkasa.png";
+
+        const GAME_MODE = { SOLO: 'solo', DUEL: 'duel' };
+        let activeMode = GAME_MODE.SOLO;
+
+        // DAFTAR 10 SOAL MISI 2 (Operasi Hitung Bilangan Bulat)
+        const MISSI_2_QUESTIONS = [
+            { text: "-6 + 9 = ?", ans: 3, opts: [3, -15, -3] },
+            { text: "-15 - 8 = ?", ans: -23, opts: [-23, -7, 23] },
+            { text: "-7 x 4 = ?", ans: -28, opts: [-28, 28, -11] },
+            { text: "-36 : (-6) = ?", ans: 6, opts: [6, -6, -42] },
+            { text: "12 + (-19) = ?", ans: -7, opts: [-7, 7, -31] },
+            { text: "-8 - (-14) = ?", ans: 6, opts: [6, -22, -6] },
+            { text: "-9 x (-5) = ?", ans: 45, opts: [45, -45, -14] },
+            { text: "48 : (-8) = ?", ans: -6, opts: [-6, 6, -56] },
+            { text: "-14 + 25 - 10 = ?", ans: 1, opts: [1, -1, 21] },
+            { text: "(-5 x 6) + 12 = ?", ans: -18, opts: [-18, 18, -42] }
+        ];
+
+        // DAFTAR 5 SOAL MISI 3 (Soal Cerita Antariksa)
+        const MISSI_3_QUESTIONS = [
+            { text: "Suhu awal planet X adalah -8°C, lalu naik 15°C saat siang. Berapa suhu siang hari?", ans: 7, opts: [7, -23, -7] },
+            { text: "Pesawat di kedalaman -50 meter menyelam lagi 30 meter. Di manakah kedalaman pesawat sekarang?", ans: -80, opts: [-80, -20, 80] },
+            { text: "Astronot mendapat +20 poin bonus, lalu kena penalti -35 poin karena badai. Berapa total poin?", ans: -15, opts: [-15, 15, -55] },
+            { text: "Suhu ruang hampa adalah -12°C. Pemanas roket menaikkan 25°C. Berapa suhu dalam roket?", ans: 13, opts: [13, -37, -13] },
+            { text: "Kapal di ketinggian 120 km lalu turun 150 km ke lembah kawah. Ketinggian relatif sekarang?", ans: -30, opts: [-30, 30, -270] }
+        ];
+
+        function createPlayerObject(name) {
+            return {
+                name: name,
+                score: 0,
+                fuel: 60,
+                mission: 1,
+                m2Index: 0, // Soal Misi 2 (0 - 9)
+                m3Index: 0, // Soal Misi 3 (0 - 4)
+                x: 150,
+                lasers: [],
+                m1Done: false,
+                stats: {
+                    correct: 0,
+                    wrong: 0,
+                    additionErr: 0,
+                    multErr: 0,
+                    storyErr: 0
+                }
+            };
+        }
+
+        let gameState = {
+            p1: createPlayerObject("Astronot 1"),
+            p2: createPlayerObject("Pemain 2"),
+            asteroidsP1: [],
+            asteroidsP2: [],
+            qP1: null,
+            qP2: null,
+            keys: {},
+            animationFrame: null,
+            animationLoopRunning: false,
+            active: false
+        };
+
+        function getQuestionData(player) {
+            if (player.mission === 2) {
+                const idx = Math.min(player.m2Index, MISSI_2_QUESTIONS.length - 1);
+                const q = MISSI_2_QUESTIONS[idx];
+                return {
+                    text: `[Soal ${idx + 1}/10]  ${q.text}`,
+                    ans: q.ans,
+                    options: [...q.opts].sort(() => Math.random() - 0.5),
+                    isStory: false
+                };
+            } else if (player.mission === 3) {
+                const idx = Math.min(player.m3Index, MISSI_3_QUESTIONS.length - 1);
+                const q = MISSI_3_QUESTIONS[idx];
+                return {
+                    text: `[Soal ${idx + 1}/5]  ${q.text}`,
+                    ans: q.ans,
+                    options: [...q.opts].sort(() => Math.random() - 0.5),
+                    isStory: true
+                };
+            }
+            return null;
+        }
+
+        window.addEventListener('load', () => {
+            let progress = 0;
+            const bar = document.getElementById('loading-bar');
+            const txt = document.getElementById('loading-text');
+
+            const loadTimer = setInterval(() => {
+                progress += 10;
+                if (bar) bar.style.width = `${progress}%`;
+                if (txt) txt.textContent = `Menyiapkan Pesawat... ${progress}%`;
+                if (progress >= 100) {
+                    clearInterval(loadTimer);
+                    setTimeout(() => {
+                        const loadingScreen = document.getElementById('screen-loading');
+                        const menuScreen = document.getElementById('screen-menu');
+                        if (loadingScreen) loadingScreen.classList.add('hidden');
+                        if (menuScreen) menuScreen.classList.remove('hidden');
+                    }, 300);
+                }
+            }, 70);
+
+            setupEventListeners();
+            loadLeaderboardUI();
+        });
+
+        function setupEventListeners() {
+            const safeClick = (id, callback) => {
+                const el = document.getElementById(id);
+                if (el) el.onclick = callback;
+            };
+
+            safeClick('btn-objectives', () => showModal('modal-objectives'));
+            safeClick('btn-instructions', () => showModal('modal-instructions'));
+            safeClick('btn-leaderboard', () => showModal('modal-leaderboard'));
+            
+            document.querySelectorAll('.btn-close-modal').forEach(btn => {
+                btn.onclick = () => hideModals();
+            });
+
+            safeClick('btn-register', () => {
+                const menu = document.getElementById('screen-menu');
+                const reg = document.getElementById('screen-register');
+                if (menu) menu.classList.add('hidden');
+                if (reg) reg.classList.remove('hidden');
+            });
+
+            safeClick('btn-back-to-menu', () => {
+                const reg = document.getElementById('screen-register');
+                const menu = document.getElementById('screen-menu');
+                if (reg) reg.classList.add('hidden');
+                if (menu) menu.classList.remove('hidden');
+            });
+
+            const cardSolo = document.getElementById('mode-solo-card');
+            const cardDuel = document.getElementById('mode-duel-card');
+            const inputSolo = document.getElementById('container-solo-input');
+            const inputDuel = document.getElementById('container-duel-input');
+
+            if (cardSolo && cardDuel && inputSolo && inputDuel) {
+                cardSolo.onclick = () => {
+                    activeMode = GAME_MODE.SOLO;
+                    cardSolo.className = "p-3.5 rounded-2xl border-2 border-cyan-400 bg-cyan-950/70 backdrop-blur-md flex flex-col items-center justify-center cursor-pointer transition-all shadow-lg";
+                    cardDuel.className = "p-3.5 rounded-2xl border-2 border-slate-700 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center cursor-pointer transition-all opacity-80 hover:opacity-100 shadow-lg";
+                    inputSolo.classList.remove('hidden');
+                    inputDuel.classList.add('hidden');
+                };
+
+                cardDuel.onclick = () => {
+                    activeMode = GAME_MODE.DUEL;
+                    cardDuel.className = "p-3.5 rounded-2xl border-2 border-rose-500 bg-rose-950/70 backdrop-blur-md flex flex-col items-center justify-center cursor-pointer transition-all shadow-lg";
+                    cardSolo.className = "p-3.5 rounded-2xl border-2 border-slate-700 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center cursor-pointer transition-all opacity-80 hover:opacity-100 shadow-lg";
+                    inputDuel.classList.remove('hidden');
+                    inputSolo.classList.add('hidden');
+                };
+            }
+
+            safeClick('btn-start-solo', () => startGame(GAME_MODE.SOLO));
+            safeClick('btn-start-duel', () => startGame(GAME_MODE.DUEL));
+            safeClick('btn-result-restart', () => {
+                const resModal = document.getElementById('modal-result');
+                const gameScreen = document.getElementById('screen-game');
+                const menuScreen = document.getElementById('screen-menu');
+                if (resModal) resModal.classList.add('hidden');
+                if (gameScreen) gameScreen.classList.add('hidden');
+                if (menuScreen) menuScreen.classList.remove('hidden');
+            });
+
+            const bLeft = document.getElementById('btn-touch-left');
+            const bRight = document.getElementById('btn-touch-right');
+            const bFire = document.getElementById('btn-touch-fire');
+
+            if (bLeft) {
+                bLeft.addEventListener('touchstart', (e) => { e.preventDefault(); gameState.keys['ArrowLeft'] = true; });
+                bLeft.addEventListener('touchend', (e) => { e.preventDefault(); gameState.keys['ArrowLeft'] = false; });
+            }
+            if (bRight) {
+                bRight.addEventListener('touchstart', (e) => { e.preventDefault(); gameState.keys['ArrowRight'] = true; });
+                bRight.addEventListener('touchend', (e) => { e.preventDefault(); gameState.keys['ArrowRight'] = false; });
+            }
+            if (bFire) {
+                bFire.addEventListener('touchstart', (e) => { e.preventDefault(); fireLaser('p1'); });
+            }
+
+            window.addEventListener('keydown', (e) => {
+                sound.init();
+                gameState.keys[e.key] = true;
+                if (e.key === 'w' || e.key === 'W' || e.key === ' ') {
+                    if (gameState.active) fireLaser('p1');
+                }
+                if (e.key === 'ArrowUp' || e.key === 'Enter') {
+                    if (gameState.active && activeMode === GAME_MODE.DUEL) fireLaser('p2');
+                }
+            });
+            window.addEventListener('keyup', (e) => {
+                gameState.keys[e.key] = false;
+            });
+        }
+
+        function showModal(id) {
+            sound.init();
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('hidden');
+        }
+        function hideModals() {
+            document.querySelectorAll('[id^="modal-"]').forEach(m => m.classList.add('hidden'));
+        }
+
+        function startGame(mode) {
+            sound.init();
+            activeMode = mode;
+            const regScreen = document.getElementById('screen-register');
+            const gameScreen = document.getElementById('screen-game');
+            if (regScreen) regScreen.classList.add('hidden');
+            if (gameScreen) gameScreen.classList.remove('hidden');
+
+            const p1Input = document.getElementById('input-p1-name');
+            const duelP1Input = document.getElementById('input-duel-p1');
+            const duelP2Input = document.getElementById('input-duel-p2');
+
+            const p1Name = p1Input && p1Input.value ? p1Input.value : "Astronot 1";
+            const duelP1Name = duelP1Input && duelP1Input.value ? duelP1Input.value : "Pemain 1";
+            const duelP2Name = duelP2Input && duelP2Input.value ? duelP2Input.value : "Pemain 2";
+
+            gameState.p1 = createPlayerObject(mode === GAME_MODE.SOLO ? p1Name : duelP1Name);
+            gameState.p2 = createPlayerObject(duelP2Name);
+            gameState.active = true;
+
+            if (mode === GAME_MODE.SOLO) {
+                document.getElementById('game-hud').classList.remove('hidden');
+                document.getElementById('duel-split-container').classList.add('hidden');
+                document.getElementById('solo-m1-view').classList.remove('hidden');
+                document.getElementById('solo-arcade-view').classList.add('hidden');
+                setupMisi1('p1', 'solo-drag-targets', 'solo-drag-canisters', 'solo-match-grid');
+                updateHUD();
+            } else {
+                document.getElementById('game-hud').classList.add('hidden');
+                document.getElementById('duel-split-container').classList.remove('hidden');
+                document.getElementById('p1-m1-view').classList.remove('hidden');
+                document.getElementById('p2-m1-view').classList.remove('hidden');
+                document.getElementById('p1-arcade-view').classList.add('hidden');
+                document.getElementById('p2-arcade-view').classList.add('hidden');
+
+                const p1NameEl = document.getElementById('p1-duel-name');
+                const p2NameEl = document.getElementById('p2-duel-name');
+                if (p1NameEl) p1NameEl.textContent = gameState.p1.name;
+                if (p2NameEl) p2NameEl.textContent = gameState.p2.name;
+
+                setupMisi1('p1', 'p1-m1-targets', 'p1-m1-canisters', 'p1-match-grid');
+                setupMisi1('p2', 'p2-m1-targets', 'p2-m1-canisters', 'p2-match-grid');
+                updateDuelHUD();
+            }
+        }
+
+        function addFuel(playerKey, amount) {
+            const p = gameState[playerKey];
+            p.fuel = Math.min(100, p.fuel + amount);
+            if (activeMode === GAME_MODE.SOLO) updateHUD();
+            else updateDuelHUD();
+        }
+
+        function updateHUD() {
+            const p = gameState.p1;
+            const nameEl = document.getElementById('solo-player-display');
+            const scoreEl = document.getElementById('solo-score-display');
+            const missionEl = document.getElementById('solo-mission-display');
+            const fuelBar = document.getElementById('solo-fuel-bar');
+            
+            if (nameEl) nameEl.textContent = p.name;
+            if (scoreEl) scoreEl.textContent = p.score;
+            if (missionEl) {
+                if (p.mission === 1) missionEl.textContent = "1 (Persiapan)";
+                else if (p.mission === 2) missionEl.textContent = `2 (Soal ${p.m2Index + 1}/10)`;
+                else if (p.mission === 3) missionEl.textContent = `3 (Soal ${p.m3Index + 1}/5)`;
+            }
+            if (fuelBar) fuelBar.style.width = `${p.fuel}%`;
+        }
+
+        function updateDuelHUD() {
+            const p1 = gameState.p1;
+            const p2 = gameState.p2;
+            const p1Score = document.getElementById('p1-score-display');
+            const p2Score = document.getElementById('p2-score-display');
+            const p1Tag = document.getElementById('p1-duel-mission-tag');
+            const p2Tag = document.getElementById('p2-duel-mission-tag');
+            
+            if (p1Score) p1Score.textContent = p1.score;
+            if (p2Score) p2Score.textContent = p2.score;
+
+            if (p1Tag) {
+                if (p1.mission === 1) p1Tag.textContent = "M1";
+                else if (p1.mission === 2) p1Tag.textContent = `M2: ${p1.m2Index + 1}/10`;
+                else if (p1.mission === 3) p1Tag.textContent = `M3: ${p1.m3Index + 1}/5`;
+            }
+
+            if (p2Tag) {
+                if (p2.mission === 1) p2Tag.textContent = "M1";
+                else if (p2.mission === 2) p2Tag.textContent = `M2: ${p2.m2Index + 1}/10`;
+                else if (p2.mission === 3) p2Tag.textContent = `M3: ${p2.m3Index + 1}/5`;
+            }
+        }
+
+        function setupMisi1(playerKey, targetsId, canistersId, matchGridId) {
+            const targetEl = document.getElementById(targetsId);
+            const canisterEl = document.getElementById(canistersId);
+            const matchEl = document.getElementById(matchGridId);
+
+            if (!targetEl || !canisterEl || !matchEl) return;
+
+            targetEl.innerHTML = '';
+            canisterEl.innerHTML = '';
+            matchEl.innerHTML = '';
+
+            const dragItems = [
+                { q: "-5 + 8 =", a: 3 },
+                { q: "-12 - 4 =", a: -16 },
+                { q: "6 + (-9) =", a: -3 }
+            ];
+
+            let countSolved = 0;
+            let matchedPairs = 0;
+            let selectedCanisterVal = null;
+
+            dragItems.forEach((item) => {
+                const targetBox = document.createElement('div');
+                targetBox.className = "drop-target bg-slate-950/80 p-2 rounded-xl text-center flex flex-col justify-between cursor-pointer";
+                targetBox.innerHTML = `
+                    <span class="text-[10px] sm:text-xs font-orbitron text-cyan-300 font-bold">${item.q}</span>
+                    <div class="h-8 border-2 border-dashed border-cyan-500/50 rounded-lg flex items-center justify-center my-1 target-slot" data-ans="${item.a}">
+                        <span class="text-[10px] text-slate-500">Isi...</span>
+                    </div>
+                `;
+
+                targetBox.onclick = () => {
+                    if (selectedCanisterVal !== null) {
+                        const slot = targetBox.querySelector('.target-slot');
+                        tryFillSlot(slot, selectedCanisterVal);
+                    }
+                };
+
+                targetEl.appendChild(targetBox);
+            });
+
+            const answers = [3, -16, -3].sort(() => Math.random() - 0.5);
+            answers.forEach(ans => {
+                const canister = document.createElement('div');
+                canister.className = "draggable-item bg-gradient-to-r from-cyan-600 to-teal-500 text-white font-orbitron text-xs font-bold px-3 py-1.5 rounded-xl shadow cursor-grab";
+                canister.textContent = ans;
+                canister.draggable = true;
+
+                canister.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', ans);
+                };
+
+                canister.onclick = (e) => {
+                    e.stopPropagation();
+                    canisterEl.querySelectorAll('.draggable-item').forEach(c => c.classList.remove('selected-tap'));
+                    if (selectedCanisterVal === ans) {
+                        selectedCanisterVal = null;
+                    } else {
+                        selectedCanisterVal = ans;
+                        canister.classList.add('selected-tap');
+                    }
+                };
+
+                canisterEl.appendChild(canister);
+            });
+
+            function tryFillSlot(slot, val) {
+                if (!slot || slot.classList.contains('filled')) return;
+                const required = parseInt(slot.getAttribute('data-ans'));
+
+                const p = gameState[playerKey];
+                if (val === required) {
+                    sound.playCorrect();
+                    slot.classList.add('filled', 'bg-emerald-500/40');
+                    slot.innerHTML = `<span class="text-emerald-300 font-bold">${val} ✓</span>`;
+                    countSolved++;
+                    p.stats.correct++;
+                    addFuel(playerKey, 15);
+
+                    canisterEl.querySelectorAll('.draggable-item').forEach(c => {
+                        if (parseInt(c.textContent) === val && !c.classList.contains('used')) {
+                            c.classList.add('opacity-30', 'pointer-events-none', 'used');
+                            c.classList.remove('selected-tap');
+                        }
+                    });
+                    selectedCanisterVal = null;
+
+                    checkMisi1Complete(playerKey, countSolved, matchedPairs);
+                } else {
+                    sound.playWrong();
+                    p.stats.wrong++;
+                    p.stats.additionErr++;
+                    reduceFuel(playerKey, 5);
+                }
+            }
+
+            targetEl.querySelectorAll('.target-slot').forEach(slot => {
+                slot.ondragover = (e) => { e.preventDefault(); slot.classList.add('bg-cyan-500/20'); };
+                slot.ondragleave = () => { slot.classList.remove('bg-cyan-500/20'); };
+                slot.ondrop = (e) => {
+                    e.preventDefault();
+                    slot.classList.remove('bg-cyan-500/20');
+                    const val = parseInt(e.dataTransfer.getData('text/plain'));
+                    tryFillSlot(slot, val);
+                };
+            });
+
+            const cardPairs = [
+                { id: 1, txt: "-4 x 2", val: -8 },
+                { id: 1, txt: "-8", val: -8 },
+                { id: 2, txt: "-15 : (-3)", val: 5 },
+                { id: 2, txt: "5", val: 5 }
+            ].sort(() => Math.random() - 0.5);
+
+            let selectedCard = null;
+
+            cardPairs.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = "match-card bg-slate-800 border border-slate-700 p-2 rounded-xl text-center text-xs font-orbitron font-bold text-white";
+                cardDiv.textContent = card.txt;
+
+                cardDiv.onclick = () => {
+                    if (cardDiv.classList.contains('matched') || cardDiv === selectedCard) return;
+                    sound.init();
+
+                    const p = gameState[playerKey];
+                    if (!selectedCard) {
+                        selectedCard = cardDiv;
+                        cardDiv.classList.add('selected');
+                    } else {
+                        if (selectedCard.textContent !== cardDiv.textContent && 
+                            cardPairs.find(c => c.txt === selectedCard.textContent).id === card.id) {
+                            sound.playCorrect();
+                            selectedCard.classList.remove('selected');
+                            selectedCard.classList.add('matched');
+                            cardDiv.classList.add('matched');
+                            selectedCard = null;
+                            matchedPairs++;
+                            p.stats.correct++;
+                            addFuel(playerKey, 10);
+                            checkMisi1Complete(playerKey, countSolved, matchedPairs);
+                        } else {
+                            sound.playWrong();
+                            p.stats.wrong++;
+                            p.stats.multErr++;
+                            selectedCard.classList.remove('selected');
+                            selectedCard = null;
+                            reduceFuel(playerKey, 5);
+                        }
+                    }
+                };
+                matchEl.appendChild(cardDiv);
+            });
+        }
+
+        function checkMisi1Complete(playerKey, countSolved, matchedPairs) {
+            if (countSolved >= 3 && matchedPairs >= 2) {
+                const p = gameState[playerKey];
+                p.m1Done = true;
+                p.mission = 2;
+                p.m2Index = 0;
+                p.score += 200;
+
+                if (activeMode === GAME_MODE.SOLO) {
+                    const m1 = document.getElementById('solo-m1-view');
+                    const arc = document.getElementById('solo-arcade-view');
+                    if (m1) m1.classList.add('hidden');
+                    if (arc) arc.classList.remove('hidden');
+                    updateHUD();
+                } else {
+                    const m1 = document.getElementById(`${playerKey}-m1-view`);
+                    const arc = document.getElementById(`${playerKey}-arcade-view`);
+                    if (m1) m1.classList.add('hidden');
+                    if (arc) arc.classList.remove('hidden');
+                    updateDuelHUD();
+                }
+
+                gameState[playerKey + 'Q'] = getQuestionData(p);
+                updateQuestionUI(playerKey);
+                
+                const canvas = document.getElementById(activeMode === GAME_MODE.SOLO ? 'canvas-solo' : `canvas-${playerKey}`);
+                if (canvas) spawnAsteroidsFor(playerKey, canvas.width);
+
+                if (!gameState.animationLoopRunning) {
+                    startArcadeLoop();
+                }
+            }
+        }
+
+        function updateQuestionUI(playerKey) {
+            const p = gameState[playerKey];
+            const q = gameState[playerKey + 'Q'];
+            if (!q) return;
+            
+            let elId = activeMode === GAME_MODE.SOLO ? 'solo-question-text' : `${playerKey}-question-text`;
+            const qEl = document.getElementById(elId);
+            if (qEl) qEl.textContent = q.text;
+
+            if (activeMode === GAME_MODE.SOLO) updateHUD();
+            else updateDuelHUD();
+        }
+
+        function spawnAsteroidsFor(playerKey, width) {
+            const q = gameState[playerKey + 'Q'];
+            if (!q) return;
+
+            const asteroids = playerKey === 'p1' ? gameState.asteroidsP1 : gameState.asteroidsP2;
+            asteroids.length = 0;
+
+            const count = q.options.length;
+            const colWidth = width / count;
+
+            q.options.forEach((optVal, idx) => {
+                const x = colWidth * idx + colWidth / 2;
+                asteroids.push({
+                    x: x,
+                    y: -30 - Math.random() * 40,
+                    radius: 22,
+                    speed: 1.2 + Math.random() * 0.4,
+                    val: optVal,
+                    isCorrect: optVal === q.ans,
+                    isHazard: false
+                });
+            });
+
+            // Hazards asteroid
+            asteroids.push({
+                x: Math.random() * (width - 60) + 30,
+                y: -100,
+                radius: 20,
+                speed: 1.8,
+                val: '🔥',
+                isCorrect: false,
+                isHazard: true
+            });
+        }
+
+        function fireLaser(playerKey) {
+            const p = gameState[playerKey];
+            if (!p || p.mission < 2) return;
+            sound.playShoot();
+            p.lasers.push({
+                x: p.x,
+                y: activeMode === GAME_MODE.SOLO ? 280 : 230,
+                speed: 8
+            });
+        }
+
+        function reduceFuel(playerKey, amount) {
+            const p = gameState[playerKey];
+            p.fuel = Math.max(0, p.fuel - amount);
+            if (activeMode === GAME_MODE.SOLO) updateHUD();
+            else updateDuelHUD();
+
+            if (p.fuel <= 0) {
+                finishGame(playerKey, false);
+            }
+        }
+
+        function renderCanvas(canvasId, playerKey, asteroids) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const p = gameState[playerKey];
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (bgImgMisi23Loaded) {
+                ctx.drawImage(bgImgMisi23, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = "#050714";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+            for (let i = 0; i < 18; i++) {
+                ctx.fillRect((i * 37) % canvas.width, (Date.now() / 15 + i * 45) % canvas.height, 2, 2);
+            }
+
+            const shipY = canvas.height - 70;
+            ctx.save();
+            ctx.translate(p.x, shipY);
+
+            const flameGlow = 6 + Math.random() * 5;
+            ctx.fillStyle = playerKey === 'p1' ? '#06b6d4' : '#f43f5e';
+            ctx.beginPath();
+            ctx.arc(0, 26, flameGlow, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(0, 24, flameGlow * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (shipImgMisi23Loaded) {
+                if (playerKey === 'p2') {
+                    ctx.filter = 'hue-rotate(140deg)';
+                }
+                ctx.drawImage(shipImgMisi23, -30, -32, 60, 64);
+                ctx.filter = 'none';
+            } else {
+                ctx.fillStyle = playerKey === 'p1' ? '#06b6d4' : '#f43f5e';
+                ctx.beginPath();
+                ctx.moveTo(0, -25);
+                ctx.lineTo(20, 20);
+                ctx.lineTo(-20, 20);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.restore();
+
+            ctx.fillStyle = playerKey === 'p1' ? '#38bdf8' : '#fb7185';
+            for (let i = p.lasers.length - 1; i >= 0; i--) {
+                const laser = p.lasers[i];
+                laser.y -= laser.speed;
+                ctx.fillRect(laser.x - 3, laser.y, 6, 16);
+
+                if (laser.y < -20) {
+                    p.lasers.splice(i, 1);
+                }
+            }
+
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                const ast = asteroids[i];
+                ast.y += ast.speed;
+
+                ctx.save();
+                ctx.translate(ast.x, ast.y);
+
+                if (ast.isHazard) {
+                    ctx.fillStyle = "#ef4444";
+                    ctx.shadowColor = "#f59e0b";
+                    ctx.shadowBlur = 15;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, ast.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "bold 16px Fredoka";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText("🔥", 0, 0);
+                } else {
+                    ctx.fillStyle = "rgba(30, 41, 59, 0.9)";
+                    ctx.strokeStyle = "#06b6d4";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, ast.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "bold 14px Orbitron";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(ast.val, 0, 0);
+                }
+                ctx.restore();
+
+                for (let j = p.lasers.length - 1; j >= 0; j--) {
+                    const l = p.lasers[j];
+                    const dist = Math.hypot(l.x - ast.x, l.y - ast.y);
+
+                    if (dist < ast.radius + 8) {
+                        p.lasers.splice(j, 1);
+                        sound.playExplosion();
+
+                        if (ast.isHazard) {
+                            sound.playWrong();
+                            p.stats.wrong++;
+                            p.score = Math.max(0, p.score - 50);
+                            reduceFuel(playerKey, 10);
+                            asteroids.splice(i, 1);
+                        } else if (ast.isCorrect) {
+                            sound.playCorrect();
+                            p.stats.correct++;
+                            p.score += 100;
+                            p.fuel = Math.min(100, p.fuel + 10);
+
+                            // Progress Soal Misi 2 (10 Soal) & Misi 3 (5 Soal)
+                            if (p.mission === 2) {
+                                p.m2Index++;
+                                if (p.m2Index >= MISSI_2_QUESTIONS.length) {
+                                    p.mission = 3;
+                                    p.m3Index = 0;
+                                }
+                            } else if (p.mission === 3) {
+                                p.m3Index++;
+                                if (p.m3Index >= MISSI_3_QUESTIONS.length) {
+                                    finishGame(playerKey, true);
+                                    return;
+                                }
+                            }
+
+                            gameState[playerKey + 'Q'] = getQuestionData(p);
+                            updateQuestionUI(playerKey);
+                            spawnAsteroidsFor(playerKey, canvas.width);
+                        } else {
+                            sound.playWrong();
+                            p.stats.wrong++;
+                            if (p.mission === 3) p.stats.storyErr++;
+                            else p.stats.multErr++;
+
+                            p.score = Math.max(0, p.score - 20);
+                            reduceFuel(playerKey, 12);
+                            asteroids.splice(i, 1);
+                        }
+                        if (activeMode === GAME_MODE.SOLO) updateHUD();
+                        else updateDuelHUD();
+                        break;
+                    }
+                }
+
+                if (ast.y > canvas.height + 40) {
+                    if (ast.isCorrect) {
+                        spawnAsteroidsFor(playerKey, canvas.width);
+                        break;
+                    } else {
+                        asteroids.splice(i, 1);
+                    }
+                }
+            }
+        }
+
+        function startArcadeLoop() {
+            gameState.animationLoopRunning = true;
+
+            function loop() {
+                if (!gameState.active) {
+                    gameState.animationLoopRunning = false;
+                    return;
+                }
+
+                const canvasSolo = document.getElementById('canvas-solo');
+                const canvasP1 = document.getElementById('canvas-p1');
+                const canvasP2 = document.getElementById('canvas-p2');
+
+                if (activeMode === GAME_MODE.SOLO && canvasSolo) {
+                    if (gameState.keys['ArrowLeft'] || gameState.keys['a'] || gameState.keys['A']) {
+                        gameState.p1.x = Math.max(30, gameState.p1.x - 5);
+                    }
+                    if (gameState.keys['ArrowRight'] || gameState.keys['d'] || gameState.keys['D']) {
+                        gameState.p1.x = Math.min(canvasSolo.width - 30, gameState.p1.x + 5);
+                    }
+                    if (gameState.p1.mission >= 2) {
+                        renderCanvas('canvas-solo', 'p1', gameState.asteroidsP1);
+                    }
+                } else if (activeMode === GAME_MODE.DUEL) {
+                    if (canvasP1 && gameState.p1.mission >= 2) {
+                        if (gameState.keys['a'] || gameState.keys['A']) gameState.p1.x = Math.max(25, gameState.p1.x - 4);
+                        if (gameState.keys['d'] || gameState.keys['D']) gameState.p1.x = Math.min(canvasP1.width - 25, gameState.p1.x + 4);
+                        renderCanvas('canvas-p1', 'p1', gameState.asteroidsP1);
+                    }
+
+                    if (canvasP2 && gameState.p2.mission >= 2) {
+                        if (gameState.keys['ArrowLeft']) gameState.p2.x = Math.max(25, gameState.p2.x - 4);
+                        if (gameState.keys['ArrowRight']) gameState.p2.x = Math.min(canvasP2.width - 25, gameState.p2.x + 4);
+                        renderCanvas('canvas-p2', 'p2', gameState.asteroidsP2);
+                    }
+                }
+
+                gameState.animationFrame = requestAnimationFrame(loop);
+            }
+
+            loop();
+        }
+
+        function generateFeedbackAndAdvice(p, isSuccess) {
+            const total = p.stats.correct + p.stats.wrong;
+            const accuracy = total > 0 ? Math.round((p.stats.correct / total) * 100) : 0;
+            
+            let feedback = "";
+            let advice = "";
+
+            if (!isSuccess) {
+                feedback = `Bahan bakar roket kamu habis sebelum misi selesai. Dari ${total} percobaan, kamu berhasil menjawab ${p.stats.correct} soal dengan tepat (${accuracy}% akurasi).`;
+                advice = "💡 **Tips:** Perhatikan baik-baik tanda positif/negatif sebelum menembak asteroid agar tidak kehilangan bahan bakar!";
+                return { feedback, advice, accuracy, total };
+            }
+
+            if (accuracy >= 85) {
+                feedback = `🌟 **Luar Biasa, Komandan Antariksa!** Kamu berhasil menuntaskan seluruh 10 Soal Misi 2 dan 5 Soal Misi 3 dengan akurasi ${accuracy}% (${p.stats.correct} dari ${total} tepat). Pemahaman operasi bilangan bulat kamu sangat luar biasa!`;
+                advice = "🚀 **Rekomendasi:** Tantang dirimu di Mode Duel atau coba selesaikan tantangan dengan waktu tempuh yang lebih cepat untuk melatih ketangkasan berpikir.";
+            } else if (accuracy >= 60) {
+                feedback = `👍 **Pendaratan Berhasil!** Kamu meraih akurasi ${accuracy}%. Penguasaan konsep kamu sudah baik, namun beberapa tembakan masih meleset saat menghitung.`;
+                if (p.stats.storyErr > p.stats.additionErr && p.stats.storyErr > p.stats.multErr) {
+                    advice = "🔍 **Tips Soal Cerita:** Perhatikan kata kunci antariksa! Kata seperti *'menyelam/turun/penalti'* menandakan nilai negatif (-), sedangkan *'naik/bonus/suhu siang'* bernilai positif (+).";
+                } else if (p.stats.multErr > p.stats.additionErr) {
+                    advice = "💡 **Tips Perkalian & Pembagian:** Ingat rumus tanda: Bilangan dengan tanda sama (negatif × negatif) menghasilkan nilai **POSITIF**, sedangkan tanda berbeda menghasilkan **NEGATIF**.";
+                } else {
+                    advice = "💡 **Tips Penjumlahan/Pengurangan:** Saat menjumlahkan bilangan beda tanda, kurangi angka terbesar dengan yang terkecil lalu ikuti tanda dari angka terbesar!";
+                }
+            } else {
+                feedback = `⚓ **Pendaratan Darurat!** Kamu berhasil menyelesaikan misi dengan akurasi ${accuracy}%. Kamu membuat ${p.stats.wrong} kesalahan selama penerbangan.`;
+                advice = "📚 **Saran Belajar:** Luangkan waktu untuk mengulas kembali garis bilangan bulat dan sifat operasi hitung dasar sebelum mencoba penerbangan berikutnya.";
+            }
+
+            return { feedback, advice, accuracy, total };
+        }
+
+        function finishGame(winnerKey, isSuccess = true) {
+            gameState.active = false;
+            cancelAnimationFrame(gameState.animationFrame);
+
+            const winner = gameState[winnerKey];
+            saveScore(winner.name, winner.score);
+
+            const { feedback, advice, accuracy, total } = generateFeedbackAndAdvice(winner, isSuccess);
+
+            const nameEl = document.getElementById('result-player-name');
+            const scoreEl = document.getElementById('result-final-score');
+            const accEl = document.getElementById('result-accuracy');
+            
+            if (nameEl) nameEl.textContent = winner.name;
+            if (scoreEl) scoreEl.textContent = winner.score;
+            if (accEl) accEl.textContent = `${accuracy}% (${winner.stats.correct}/${total} Benar)`;
+            
+            const badgeEl = document.getElementById('result-status-badge');
+            const iconBox = document.getElementById('result-icon-box');
+            const titleEl = document.getElementById('result-title');
+
+            if (isSuccess) {
+                if (titleEl) titleEl.textContent = activeMode === GAME_MODE.SOLO ? "MISI SELESAI!" : `${winner.name} MENANG!`;
+                if (badgeEl) {
+                    badgeEl.textContent = accuracy >= 80 ? "PENJELAJAH MASTER" : "BERHASIL LANDAS";
+                    badgeEl.className = "text-emerald-400 font-bold";
+                }
+                if (iconBox) iconBox.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+            } else {
+                if (titleEl) titleEl.textContent = "BAHAN BAKAR HABIS!";
+                if (badgeEl) {
+                    badgeEl.textContent = "PERLU EVALUASI";
+                    badgeEl.className = "text-amber-400 font-bold";
+                }
+                if (iconBox) iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+
+            const fbEl = document.getElementById('result-feedback-text');
+            const advEl = document.getElementById('result-advice-text');
+            if (fbEl) fbEl.innerHTML = feedback;
+            if (advEl) advEl.innerHTML = advice;
+            
+            showModal('modal-result');
+        }
+
+        function saveScore(name, score) {
+            let leaderboard = JSON.parse(localStorage.getItem('ja_leaderboard') || '[]');
+            leaderboard.push({ name: name, score: score, date: new Date().toLocaleDateString('id-ID') });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10);
+            localStorage.setItem('ja_leaderboard', JSON.stringify(leaderboard));
+            loadLeaderboardUI();
+        }
+
+        function loadLeaderboardUI() {
+            const listEl = document.getElementById('leaderboard-list');
+            if (!listEl) return;
+            let leaderboard = JSON.parse(localStorage.getItem('ja_leaderboard') || '[]');
+
+            if (leaderboard.length === 0) {
+                listEl.innerHTML = `<div class="text-center text-slate-400 text-xs py-4">Belum ada skor tercatat. Jadilah yang pertama!</div>`;
+                return;
+            }
+
+            listEl.innerHTML = leaderboard.map((item, idx) => `
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-orbitron">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full ${idx === 0 ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-slate-700 text-slate-300'} flex items-center justify-center text-[10px]">
+                            ${idx + 1}
+                        </span>
+                        <span class="text-white font-bold">${item.name}</span>
+                    </div>
+                    <span class="text-amber-400 font-bold">${item.score} PTS</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
